@@ -1,83 +1,13 @@
-from Synthetics.model.calendar_tools import country_holiday_calendar
-import re
-from dateutil.relativedelta import relativedelta
-import pandas as pd
-from pandas.tseries.offsets import BDay
-from datetime import timedelta
-from Synthetics.model.tools import element_to_treat
+    def compute_stub_period(self, starting_date, maturity_date):
 
-class ScheduleGenerator:
+        last_period = self.generate_dates(starting_date, maturity_date)[-1]
+        last_generated_date = pd.Timestamp(last_period[-1])
+        maturity_date = pd.Timestamp(maturity_date)
 
-    def __init__(self, frequency, country_calendar: str, payment_schedule, deduction_formula):
-        self.frequency = element_to_treat(frequency)
-        self.calendar = country_holiday_calendar[country_calendar]
-        self.payment_schedule = payment_schedule
+        custom_bday = CustomBusinessDay(holidays=self.holiday_calendar)
 
-        if self.payment_schedule == "Deduced from":
-            self.deduction_formula = deduction_formula
+        business_days = pd.bdate_range(start=last_generated_date, end=maturity_date, freq=custom_bday)
 
-        self.digit_part, self.time_value_part = self.decompose_frequency()
+        difference_in_bdays = len(business_days) - 1
 
-    def get_holiday_calendar(self):
-        return self.calendar
-
-    def decompose_frequency(self):
-        match = re.match(r'(\d+)([A-Za-z]+)', self.frequency)
-        if match:
-            digit_part = int(match.group(1))
-            time_value_part = match.group(2)
-            return digit_part, time_value_part
-        else:
-            raise ValueError("Invalid frequency format")
-
-    def adjusted_weekend(self, date):
-        while date.weekday() >= 5 or date in self.calendar:
-            date += pd.offsets.BDay(1)
-        return date
-
-    def generates_dates(self, starting_date, maturity_date):
-        current_date = starting_date
-        dates = []
-        while current_date <= maturity_date:
-            adjusted_date = self.adjusted_weekend(current_date)
-            dates.append(adjusted_date)
-            if "W" in self.time_value_part:
-                current_date += relativedelta(weeks=self.digit_part)
-            elif "M" in self.time_value_part:
-                current_date += relativedelta(months=self.digit_part)
-            elif "Y" in self.time_value_part:
-                current_date += relativedelta(years=self.digit_part)
-
-        end_dates = dates[1:]
-        dates = dates[:-1]
-        return dates, end_dates
-
-
-    def set_payment_dates(self, starting_date, maturity_date):
-        end_dates = self.generates_dates(starting_date, maturity_date)[1]
-        df = pd.DataFrame({"Payment Date": end_dates})
-        if self.payment_schedule == "Equal to Fixing End Schedule":
-            pass
-        elif self.payment_schedule == "Deduced from":
-            numeric_part = int(re.search(r'\d+', self.deduction_formula).group())
-            if "BD" in self.deduction_formula:
-                df["Payment Date"] += BDay(numeric_part)
-            elif "DAYS" in self.deduction_formula:
-                df["Payment Date"] += timedelta(days=numeric_part)
-
-        return df
-
-    def generate_schedule(self, starting_date, maturity_date):
-        dates, end_dates = self.generates_dates(starting_date, maturity_date)
-        payment_dates = self.set_payment_dates(starting_date, maturity_date)
-        df = pd.DataFrame({"Fixing Start": dates, "Fixing End": end_dates, "Payment_dates": payment_dates["Payment Date"]})
-        df["Fixing Start"] = pd.to_datetime(df["Fixing Start"])
-        df["Fixing End"] = pd.to_datetime(df["Fixing End"])
-        df["Payment_dates"] = pd.to_datetime(df["Payment_dates"])
-
-        # Extract date part using dt accessor
-        df["Fixing Start"] = df["Fixing Start"].dt.date
-        df["Fixing End"] = df["Fixing End"].dt.date
-        df["Payment_dates"] = df["Payment_dates"].dt.date
-
-        return df  # Ensure that this line is not indented inside the loop
+        return difference_in_bdays

@@ -9,9 +9,9 @@ import datetime
 
 class ScheduleGenerator:
 
-    def __init__(self, frequency, holiday_calendar, payment_schedule, deduction_formula):
+    def __init__(self, fixing_frequency, holiday_calendar,payment_schedule, deduction_formula):
 
-        self.frequency = frequency
+        self.frequency = fixing_frequency
 
         self.holiday_calendar = Holidays_Days_countries[holiday_calendar]
 
@@ -23,6 +23,7 @@ class ScheduleGenerator:
         self.digit_part, self.time_value_part = self.decompose_frequency()
 
     def decompose_frequency(self):
+
         match = re.match(r'(\d+)([A-Za-z]+)', self.frequency)
         if match:
             digit_part = int(match.group(1))
@@ -30,7 +31,6 @@ class ScheduleGenerator:
             return digit_part, time_value_part
         else:
             raise ValueError("Invalid frequency format")
-
 
     def adjusted_weekend_holidays(self, date):
         while date.weekday() >= 5 or date in self.holiday_calendar:
@@ -67,18 +67,15 @@ class ScheduleGenerator:
 
 
     def compute_stub_period(self, starting_date, maturity_date):
+            # Get the last date from the generated dates
+            last_period = self.generate_dates(starting_date, maturity_date)[-1]
+            last_generated_date = pd.Timestamp(last_period[-1])
+            maturity_date = pd.Timestamp(maturity_date)
 
-        last_period = self.generate_dates(starting_date, maturity_date)[-1]
-        last_generated_date = pd.Timestamp(last_period[-1])
-        maturity_date = pd.Timestamp(maturity_date)
+            # Compute the difference in calendar days
+            difference_in_days = (maturity_date - last_generated_date).days
 
-        custom_bday = CustomBusinessDay(holidays=self.holiday_calendar)
-
-        business_days = pd.bdate_range(start=last_generated_date, end=maturity_date, freq=custom_bday)
-
-        difference_in_bdays = len(business_days) - 1
-        return difference_in_bdays
-
+            return difference_in_days
     def generate_dates_with_stub_period(self, stub_period_position, starting_date, maturity_date):
 
         starting_date = pd.to_datetime(starting_date).to_pydatetime()

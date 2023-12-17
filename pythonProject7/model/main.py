@@ -5,15 +5,15 @@ if __name__ == "__main__":
 
     trade_date = "02/01/2009"
     valuation_shifter = 3
-    maturity = "2Y"
-    fixing_frequency = "2BM"
+    maturity = "1Y"
+    fixing_frequency = "5M"
     holiday_calendar = "USA"
     perf_payment_schedule = "Deduced from"
     deduction_formula_perf = "3BD"
-    financing_frequency = "1M"
+    financing_frequency = "5M"
     financing_payment_schedule = "Deduced from"
     deduction_formula_financing = "3BD"
-    stub_period_position = "InAreas"
+    stub_period_position = "upfront"
 
 
     transaction_instance = Transaction(trade_date, valuation_shifter, maturity, fixing_frequency, holiday_calendar,
