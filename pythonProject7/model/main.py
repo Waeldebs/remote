@@ -22,11 +22,11 @@ if __name__ == "__main__":
 
 
 
-    print("Financing Schedule")
+    print("Equity Schedule")
     print(transaction_instance.get_equity_schedule())
 
     print("")
 
-    print("Equity Schedule")
-    print(transaction_instance.get_number_days())
+    print("Financing Schedule")
+    print(transaction_instance.get_financing_schedule())
 

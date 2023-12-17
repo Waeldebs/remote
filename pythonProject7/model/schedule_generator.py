@@ -84,10 +84,12 @@ class ScheduleGenerator:
             stub_period_position_first_date = starting_date
             stub_period_last_date = stub_period_position_first_date + relativedelta(days=self.compute_stub_period(starting_date, maturity_date))
             stub_period_last_date = self.adjusted_weekend_holidays(stub_period_last_date)
-            first_period, last_period, _ = self.generate_dates(stub_period_last_date, maturity_date)
-            first_period.insert(0, stub_period_position_first_date)
-            last_period.insert(0, stub_period_last_date)
+            _, _, dates = self.generate_dates(stub_period_last_date, maturity_date + relativedelta(days=5))
+            dates.insert(0, starting_date)
+            first_period = dates[:-1]
+            last_period = dates[1:]
             return first_period, last_period
+
 
         else:
             raise ValueError(f"Invalid stub period position: {stub_period_position}")
