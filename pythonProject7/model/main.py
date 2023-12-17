@@ -10,10 +10,10 @@ if __name__ == "__main__":
     holiday_calendar = "USA"
     perf_payment_schedule = "Deduced from"
     deduction_formula_perf = "3BD"
-    financing_frequency = "6M"
+    financing_frequency = "5M"
     financing_payment_schedule = "Deduced from"
-    deduction_formula_financing = "3BD"
-    stub_period_position = "InAreas"
+    deduction_formula_financing = "5BD"
+    stub_period_position = "upfront"
 
 
     transaction_instance = Transaction(trade_date, valuation_shifter, maturity, fixing_frequency, holiday_calendar,
@@ -30,4 +30,3 @@ if __name__ == "__main__":
     print("Equity Schedule")
     print(transaction_instance.get_equity_schedule())
 
-    print(transaction_instance.cc())

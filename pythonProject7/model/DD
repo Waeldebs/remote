@@ -11,3 +11,11 @@
         difference_in_bdays = len(business_days) - 1
 
         return difference_in_bdays
+
+
+
+
+    first_period, last_period, _ = self.generate_dates(stub_period_last_date, maturity_date)
+            first_period.insert(0, stub_period_position_first_date)
+            last_period.insert(0, stub_period_last_date)
+            return first_period, last_period
