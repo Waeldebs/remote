@@ -82,7 +82,8 @@ class ScheduleGenerator:
 
         if stub_period_position == "upfront":
             first_period, last_period, dates = self.generate_dates(starting_date, maturity_date)
-            dates.append(maturity_date)
+            if maturity_date != last_period:
+                dates.append(maturity_date)
             first_period = dates[:-1]
             last_period = dates[1:]
             return first_period, last_period
@@ -90,7 +91,7 @@ class ScheduleGenerator:
         elif stub_period_position == "InAreas":
             stub_period_last_date = starting_date + relativedelta(days=self.compute_stub_period(starting_date, maturity_date))
             stub_period_last_date = self.adjusted_weekend_holidays(stub_period_last_date)
-            first_period, last_period, _ = self.generate_dates(stub_period_last_date - relativedelta(days=2), maturity_date)
+            first_period, last_period, _ = self.generate_dates(stub_period_last_date, maturity_date)
             first_period.insert(0, starting_date)
             last_period.insert(0, stub_period_last_date)
             return first_period, last_period
@@ -145,4 +146,4 @@ class ScheduleGenerator:
 
 
 schedule = ScheduleGenerator("5M", "USA", "Deduced from", "3BD")
-print(schedule.compute_stub_period(starting_date=datetime.datetime(2023,1,1), maturity_date=datetime.datetime(2024,1, 1)))
+print(schedule.generate_dates_with_stub_period(starting_date=datetime.datetime(2023,1,1), maturity_date=datetime.datetime(2024,1, 1), stub_period_position="upfront"))

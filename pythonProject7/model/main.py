@@ -10,7 +10,7 @@ if __name__ == "__main__":
     holiday_calendar = "USA"
     perf_payment_schedule = "Deduced from"
     deduction_formula_perf = "3BD"
-    financing_frequency = "5M"
+    financing_frequency = "6M"
     financing_payment_schedule = "Deduced from"
     deduction_formula_financing = "3BD"
     stub_period_position = "InAreas"
