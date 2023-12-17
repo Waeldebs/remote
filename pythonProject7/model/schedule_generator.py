@@ -67,12 +67,11 @@ class ScheduleGenerator:
 
 
     def compute_stub_period(self, starting_date, maturity_date):
-            # Get the last date from the generated dates
+
             last_period = self.generate_dates(starting_date, maturity_date)[-1]
             last_generated_date = pd.Timestamp(last_period[-1])
             maturity_date = pd.Timestamp(maturity_date)
 
-            # Compute the difference in calendar days
             difference_in_days = (maturity_date - last_generated_date).days
 
             return difference_in_days
@@ -90,7 +89,8 @@ class ScheduleGenerator:
 
         elif stub_period_position == "InAreas":
             stub_period_last_date = starting_date + relativedelta(days=self.compute_stub_period(starting_date, maturity_date))
-            first_period, last_period, _ = self.generate_dates(stub_period_last_date, maturity_date)
+            stub_period_last_date = self.adjusted_weekend_holidays(stub_period_last_date)
+            first_period, last_period, _ = self.generate_dates(stub_period_last_date - relativedelta(days=2), maturity_date)
             first_period.insert(0, starting_date)
             last_period.insert(0, stub_period_last_date)
             return first_period, last_period

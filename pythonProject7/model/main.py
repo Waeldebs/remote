@@ -13,7 +13,7 @@ if __name__ == "__main__":
     financing_frequency = "5M"
     financing_payment_schedule = "Deduced from"
     deduction_formula_financing = "3BD"
-    stub_period_position = "upfront"
+    stub_period_position = "InAreas"
 
 
     transaction_instance = Transaction(trade_date, valuation_shifter, maturity, fixing_frequency, holiday_calendar,
