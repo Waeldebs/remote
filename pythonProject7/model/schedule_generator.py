@@ -4,18 +4,17 @@ import pandas as pd
 from pandas.tseries.offsets import BDay
 from datetime import timedelta
 from pythonProject7.model.calendar_tools import Holidays_Days_countries
-
+import datetime
 
 class ScheduleGenerator:
 
-    def __init__(self, frequency, holiday_calendar, payment_schedule, deduction_formula, set_stub_period):
+    def __init__(self, frequency, holiday_calendar, payment_schedule, deduction_formula):
         self.frequency = frequency
         self.holiday_calendar = Holidays_Days_countries[holiday_calendar]
         self.payment_schedule = payment_schedule
         if self.payment_schedule == "Deduced from":
             self.deduction_formula = deduction_formula
         self.digit_part, self.time_value_part = self.decompose_frequency()
-        self.set_stub_period = set_stub_period
 
     def decompose_frequency(self):
         match = re.match(r'(\d+)([A-Za-z]+)', self.frequency)
@@ -28,7 +27,7 @@ class ScheduleGenerator:
 
 
     def adjusted_weekend(self, date):
-        while date.weekday() >= 5 or date.date() in self.holiday_calendar:
+        while date.weekday() >= 5:
             date += pd.offsets.BDay(1)
         return date
 
@@ -36,6 +35,7 @@ class ScheduleGenerator:
     def generate_dates(self, starting_date, maturity_date):
         dates = []
         current_date = starting_date
+
         while current_date <= maturity_date:
             adjusted_date = self.adjusted_weekend(current_date)
             dates.append(adjusted_date)
@@ -45,13 +45,43 @@ class ScheduleGenerator:
                 current_date += relativedelta(months=self.digit_part)
             if "D" in self.time_value_part:
                 current_date += relativedelta(days=self.digit_part)
+
+
         first_period = dates[:-1]
         last_period = dates[1:]
-        return first_period, last_period
+        return first_period, last_period, dates
 
 
-    def set_payment_dates(self, starting_date, maturity_date):
-        end_dates = self.generate_dates(starting_date, maturity_date)[1]
+    def compute_stub_period(self,starting_date, maturity_date):
+        last_period = self.generate_dates(starting_date, maturity_date)[-1]
+        last_generated_date = last_period[-1]
+        difference = (pd.Timestamp(maturity_date) - pd.Timestamp(last_generated_date)).days
+        return difference
+
+
+    def generate_dates_with_stub_period(self, stub_period_position, starting_date, maturity_date):
+
+        if stub_period_position == "upfront":
+            dates = self.generate_dates(starting_date, maturity_date)[-1]
+            dates.append(maturity_date)
+            first_period = dates[:-1]
+            last_period = dates[1:]
+            return first_period, last_period
+
+        elif stub_period_position == "InAreas":
+            stub_period_last_date = starting_date + relativedelta(days=self.compute_stub_period(starting_date, maturity_date))
+            dates, _, _ = self.generate_dates(starting_date=stub_period_last_date, maturity_date=datetime.datetime(2010,2,2))
+            dates.insert(0, starting_date)
+            first_period = dates[:-1]
+            last_period = dates[1:]
+            return first_period, last_period
+
+        else:
+            raise ValueError(f"Invalid stub period position: {stub_period_position}")
+
+
+    def set_payment_dates(self,stub_period_position, starting_date, maturity_date):
+        end_dates = self.generate_dates_with_stub_period(stub_period_position, starting_date, maturity_date)[1]
         df = pd.DataFrame({"Payment Date": end_dates})
         if self.payment_schedule == "Equal to Fixing End Schedule":
             pass
@@ -65,9 +95,9 @@ class ScheduleGenerator:
         return df
 
 
-    def generate_equity_schedule(self, starting_date, maturity_date):
-        first_period, last_period = self.generate_dates(starting_date, maturity_date)
-        payment_dates = self.set_payment_dates(starting_date, maturity_date)
+    def generate_equity_schedule(self,stub_period_position, starting_date, maturity_date):
+        first_period, last_period= self.generate_dates_with_stub_period(stub_period_position,starting_date, maturity_date)
+        payment_dates = self.set_payment_dates(stub_period_position, starting_date, maturity_date)
         df = pd.DataFrame(
             {"Fixing Start": first_period, "Fixing End": last_period, "Payment_dates": payment_dates["Payment Date"]})
         df["Fixing Start"] = pd.to_datetime(df["Fixing Start"])
@@ -79,9 +109,9 @@ class ScheduleGenerator:
 
         return df
 
-    def generate_financing_schedule(self, starting_date, maturity_date):
-        first_period, last_period = self.generate_dates(starting_date, maturity_date)
-        payment_dates = self.set_payment_dates(starting_date, maturity_date)
+    def generate_financing_schedule(self,stub_period_position, starting_date, maturity_date):
+        first_period, last_period = self.generate_dates_with_stub_period(stub_period_position, starting_date, maturity_date)
+        payment_dates = self.set_payment_dates(stub_period_position, starting_date, maturity_date)
         df = pd.DataFrame(
             {"Calc Start": first_period, "Calc End": last_period, "Payment_dates": payment_dates["Payment Date"]})
         df["Calc Start"] = pd.to_datetime(df["Calc Start"])
@@ -92,3 +122,8 @@ class ScheduleGenerator:
         df["Payment_dates"] = df["Payment_dates"].dt.date
 
         return df
+
+
+
+schedule = ScheduleGenerator("5M", "USA", "Deduced from", "3BD")
+print(schedule.compute_stub_period(starting_date=datetime.datetime(2023,1,1), maturity_date=datetime.datetime(2024,1, 1)))
