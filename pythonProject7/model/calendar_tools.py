@@ -23,38 +23,33 @@ def date_to_treat(trade_date):
 
 
 
-def thanksgiving_usa(year):
-    return datetime(year, 11, (22 + (3 - datetime(year, 11, 1).weekday()) % 7)).date()
 
 Holidays_Days_countries = {
     "USA": [
         # 2023
-        datetime(2023, 1, 1).date(),
-        datetime(2023, 7, 4).date(),
-        datetime(2023, 11, 11).date(),
-        thanksgiving_usa(2023),
-        datetime(2023, 12, 25).date(),
+        datetime(2023, 1, 1),
+        datetime(2023, 7, 4),
+        datetime(2023, 11, 11),
+        datetime(2023, 12, 25),
         # 2024
-        datetime(2024, 1, 1).date(),
-        datetime(2024, 7, 4).date(),
-        datetime(2024, 11, 11).date(),
-        thanksgiving_usa(2024),
-        datetime(2024, 12, 25).date(),
-        # Additional years 2025, 2026, 2027...
+        datetime(2024, 1, 1),
+        datetime(2024, 7, 4),
+        datetime(2024, 11, 11),
+        datetime(2024, 12, 25),
     ],
     "France": [
         # 2023
-        datetime(2023, 1, 1).date(),
-        datetime(2023, 5, 1).date(),
-        datetime(2023, 5, 8).date(),
-        datetime(2023, 7, 14).date(),
-        datetime(2023, 8, 15).date(),
+        datetime(2023, 1, 1),
+        datetime(2023, 5, 1),
+        datetime(2023, 5, 8),
+        datetime(2023, 7, 14),
+        datetime(2023, 8, 15),
         # 2024
-        datetime(2024, 1, 1).date(),
-        datetime(2024, 5, 1).date(),
-        datetime(2024, 5, 8).date(),
-        datetime(2024, 7, 14).date(),
-        datetime(2024, 8, 15).date(),
+        datetime(2024, 1, 1),
+        datetime(2024, 5, 1),
+        datetime(2024, 5, 8),
+        datetime(2024, 7, 14),
+        datetime(2024, 8, 15),
         # Additional years 2025, 2026, 2027...
     ]
 }

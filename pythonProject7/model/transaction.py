@@ -14,8 +14,11 @@ class Transaction:
                  financing_frequency, financing_payment_schedule, deduction_formula_perf, deduction_formula_financing, stub_period_position):
 
         self.trade_date = date_to_treat(trade_date)
+
         self.valuation_shifter = valuation_shifter
+
         self.maturity = maturity
+
         self.stub_period_position = stub_period_position
 
         perf_schedule_generator = ScheduleGenerator(fixing_frequency, holiday_calendar, perf_payment_schedule, deduction_formula_perf)
@@ -47,17 +50,15 @@ class Transaction:
     @property
     def maturity_date(self):
         numeric_part, alphabetic_part = self.decompose_string(self.maturity)
-        if alphabetic_part is None:
-            return "Invalid maturity format"
 
         start_date = self.effective_date
         numeric_part = int(numeric_part)  # Convert to integer
 
-        if "Y" in alphabetic_part:
+        if "YEAR" or "Y" in alphabetic_part:
             maturity_date = start_date + relativedelta(years=numeric_part)
-        elif "M" in alphabetic_part:
+        elif "M" or "M" in alphabetic_part:
             maturity_date = start_date + relativedelta(months=numeric_part)
-        elif "W" in alphabetic_part:
+        elif "W" or "Weeks" in alphabetic_part:
             maturity_date = start_date + relativedelta(weeks=numeric_part)
         else:
             return "Invalid maturity format"
