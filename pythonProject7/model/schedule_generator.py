@@ -8,13 +8,14 @@ import datetime
 
 class ScheduleGenerator:
 
-    def __init__(self, fixing_frequency, holiday_calendar, payment_schedule, deduction_formula):
+    def __init__(self,fixing_frequency, holiday_calendar, payment_schedule, deduction_formula):
+
         self.frequency = fixing_frequency
+
         self.holiday_calendar = Holidays_Days_countries[holiday_calendar]
         self.payment_schedule = payment_schedule
         if self.payment_schedule == "Deduced from":
             self.deduction_formula = deduction_formula
-
         self.digit_part, self.time_value_part = self.decompose_frequency()
 
     def decompose_frequency(self):
@@ -136,4 +137,5 @@ class ScheduleGenerator:
 
 # Example usage
 schedule = ScheduleGenerator("5M", "USA", "Deduced from", "3BD")
-print(schedule.generate_dates_with_stub_period(starting_date=datetime.datetime(2023,2,1), maturity_date=datetime.datetime(2024,1, 1), stub_period_position="upfront"))
+#print(schedule.generate_dates_with_stub_period(starting_date=datetime.datetime(2023,2,1), maturity_date=datetime.datetime(2024,1, 1), stub_period_position="upfront"))
+#print(schedule.compute_stub_period(starting_date=datetime.datetime(2023,2,1), maturity_date=datetime.datetime(2024,1, 1)))
