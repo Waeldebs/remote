@@ -10,9 +10,9 @@ import datetime
 class ScheduleGenerator:
     def __init__(self, fixing_frequency, holiday_calendar, payment_schedule, payment_frequency=None, deduction_formula=None):
         self.fixing_frequency = fixing_frequency
-        self.holiday_calendar = Holidays_Days_countries[holiday_calendar]  # Assuming Holidays_Days_countries is defined elsewhere
-
+        self.holiday_calendar = Holidays_Days_countries[holiday_calendar]
         self.payment_schedule = payment_schedule
+
         if self.payment_schedule == "Driving Schedule":
             self.payment_frequency = payment_frequency
             self.payment_digit_part, self.payment_time_value_part = self.decompose_frequency(self.payment_frequency)
@@ -45,6 +45,7 @@ class ScheduleGenerator:
 
     def get_holiday_calendar(self):
         return self.holiday_calendar
+
     def get_calendar_exchange_schedule(self, starting_date, maturity, exchange_market = None):
         if self.holiday_calendar == "USA":
             exchange_market = "NYSE"
@@ -169,4 +170,3 @@ schedule = ScheduleGenerator("5M", "USA", "Driving Schedule", "1M")
 print(schedule.payment_schedule)#print(schedule.compute_stub_period(starting_date=datetime.datetime(2023,2,1), maturity_date=datetime.datetime(2024,1, 1)))
 print(schedule.fixing_frequency)
 print(schedule.payment_frequency)
-print(schedule.deduction_formula)
