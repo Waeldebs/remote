@@ -8,7 +8,7 @@ if __name__ == "__main__":
     maturity = "1Y"
     fixing_frequency = "5M"
     holiday_calendar = "USA"
-    perf_payment_schedule = "Deduced from"
+    perf_payment_schedule = "Equal to Fixing End Schedule"
     deduction_formula_perf = "3BD"
     financing_frequency = "5M"
     financing_payment_schedule = "Deduced from"

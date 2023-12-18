@@ -4,7 +4,6 @@ import pandas as pd
 from pandas.tseries.offsets import BDay
 from pythonProject7.model.calendar_tools import date_to_treat
 from dateutil.relativedelta import relativedelta
-
 from pythonProject7.model.schedule_generator import ScheduleGenerator
 from pythonProject7.model.perf_leg import PerfLeg
 from pythonProject7.model.financing_leg import FinancingLeg

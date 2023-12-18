@@ -85,7 +85,6 @@ class ScheduleGenerator:
         elif stub_period_position == "upfront":
             stub_period_position_first_date = starting_date
             stub_period_last_date = stub_period_position_first_date + relativedelta(days=self.compute_stub_period(starting_date, maturity_date))
-            print(stub_period_last_date)
             _, _, dates = self.generate_dates(stub_period_last_date, maturity_date)
             dates.insert(0, starting_date)
             first_period = dates[:-1]
