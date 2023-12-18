@@ -11,6 +11,7 @@ from pythonProject7.model.financing_leg import FinancingLeg
 class Transaction:
 
     def __init__(self, trade_date, valuation_shifter: int, maturity, fixing_frequency, holiday_calendar, perf_payment_schedule,
+
                  financing_frequency, financing_payment_schedule, deduction_formula_perf, deduction_formula_financing, stub_period_position):
 
         self.trade_date = date_to_treat(trade_date)

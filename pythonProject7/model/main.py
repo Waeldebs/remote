@@ -6,7 +6,7 @@ if __name__ == "__main__":
     trade_date = "02/01/2009"
     valuation_shifter = 3
     maturity = "3Y"
-    fixing_frequency = "120M"
+    fixing_frequency = "12OW"
     holiday_calendar = "USA"
     perf_payment_schedule = "Equal to Fixing End Schedule"
     deduction_formula_perf = "3BD"
