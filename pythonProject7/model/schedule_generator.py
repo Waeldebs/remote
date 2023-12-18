@@ -1,8 +1,9 @@
 import re
+import pandas_market_calendars as mcal
 from dateutil.relativedelta import relativedelta
 import pandas as pd
 from pandas.tseries.offsets import BDay, YearEnd, BMonthEnd
-from datetime import timedelta, datetime
+from datetime import timedelta
 from pythonProject7.model.calendar_tools import Holidays_Days_countries
 import datetime
 
@@ -34,7 +35,18 @@ class ScheduleGenerator:
             date += pd.offsets.BDay(1)
         return date
 
+
+    def get_holiday_calendar(self):
+        return self.holiday_calendar
+    def get_calendar_exchange_schedule(self, starting_date, maturity, exchange_market = "NYSE"):
+        if self.holiday_calendar == "USA":
+            nyse_calendar = mcal.get_calendar(exchange_market)
+            full_schedule = nyse_calendar.schedule(start_date=starting_date, end_date=maturity)
+            return full_schedule
+
     def generate_dates(self, starting_date, maturity_date):
+
+        full_schedule = self.get_calendar_exchange_schedule(starting_date,maturity_date) # To compute open days if frequency is set to open
         dates = []
         current_date = pd.Timestamp(self.adjusted_weekend_holidays(starting_date))
         time_value_part_upper = self.time_value_part.upper()
@@ -58,7 +70,10 @@ class ScheduleGenerator:
                 current_date += relativedelta(weeks=self.digit_part)
             elif "BW" in time_value_part_upper:
                 current_date += pd.offsets.BDay(5 * self.digit_part)
-
+            elif "OD" in time_value_part_upper:
+                current_date += full_schedule.iloc[self.digit_part - 1 : self.digit_part]
+            elif "OW" in time_value_part_upper:
+                current_date += full_schedule.iloc[self.digit_part - 1 : self.digit_part * 5]
 
         first_period = dates[:-1]
         last_period = dates[1:]
@@ -90,10 +105,9 @@ class ScheduleGenerator:
             first_period = dates[:-1]
             last_period = dates[1:]
             return first_period, last_period
-
-
         else:
             raise ValueError(f"Invalid stub period position: {stub_period_position}")
+
 
     def set_payment_dates(self, stub_period_position, starting_date, maturity_date):
         end_dates = self.generate_dates_with_stub_period(stub_period_position, starting_date, maturity_date)[1]

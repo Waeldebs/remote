@@ -41,30 +41,31 @@ class Transaction:
         effective_date = self.trade_date + BDay(self.valuation_shifter)
         return effective_date
 
-    @staticmethod
-    def adjusted_weekend(date):
-        while date.weekday() >= 5:
+    def adjusted_weekend(self,date):
+        while date.weekday() >= 5 or date in self.financing_leg.schedule_generator.get_holiday_calendar():
             date += pd.offsets.BDay(1)
         return date
 
     @property
     def maturity_date(self):
-        numeric_part, alphabetic_part = self.decompose_string(self.maturity)
+            numeric_part, alphabetic_part = self.decompose_string(self.maturity)
 
-        start_date = self.effective_date
-        numeric_part = int(numeric_part)  # Convert to integer
+            if alphabetic_part is None:
+                return "Invalid maturity format"
 
-        if "YEAR" or "Y" in alphabetic_part:
-            maturity_date = start_date + relativedelta(years=numeric_part)
-        elif "M" or "M" in alphabetic_part:
-            maturity_date = start_date + relativedelta(months=numeric_part)
-        elif "W" or "Weeks" in alphabetic_part:
-            maturity_date = start_date + relativedelta(weeks=numeric_part)
-        else:
-            return "Invalid maturity format"
+            start_date = pd.to_datetime(self.effective_date)
+            numeric_part = int(numeric_part)  # Convert to integer
 
-        return pd.to_datetime(self.adjusted_weekend(maturity_date))
+            if "YEAR" in alphabetic_part.upper() or "Y" in alphabetic_part.upper():
+                maturity_date = start_date + relativedelta(years=numeric_part)
+            elif "MONTH" in alphabetic_part.upper() or "M" in alphabetic_part.upper():
+                maturity_date = start_date + relativedelta(months=numeric_part)
+            elif "WEEK" in alphabetic_part.upper() or "W" in alphabetic_part.upper():
+                maturity_date = start_date + relativedelta(weeks=numeric_part)
+            else:
+                return "Invalid maturity format"
 
+            return self.adjusted_weekend(maturity_date)
 
     def get_equity_schedule(self):
         return self.perf_leg.schedule_generator.generate_equity_schedule(starting_date= pd.to_datetime(self.trade_date), maturity_date = self.maturity_date, stub_period_position=self.stub_period_position)
