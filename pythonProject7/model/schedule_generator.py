@@ -110,6 +110,7 @@ class ScheduleGenerator:
 
 
     def set_payment_dates(self, stub_period_position, starting_date, maturity_date):
+
         end_dates = self.generate_dates_with_stub_period(stub_period_position, starting_date, maturity_date)[1]
         df = pd.DataFrame({"Payment Date": end_dates})
         if self.payment_schedule == "Equal to Fixing End Schedule":
@@ -118,12 +119,15 @@ class ScheduleGenerator:
             numeric_part = int(re.search(r'\d+', self.deduction_formula).group())
             if "BD" in self.deduction_formula:
                 df["Payment Date"] += BDay(numeric_part)
+                df["Payment Date"] = df["Payment Date"].apply(lambda x: self.adjusted_weekend_holidays(x))
             elif "DAYS" in self.deduction_formula:
                 df["Payment Date"] += timedelta(days=numeric_part)
+                df["Payment Date"] = df["Payment Date"].apply(lambda x: self.adjusted_weekend_holidays(x))
 
         return df
 
     def generate_equity_schedule(self, stub_period_position, starting_date, maturity_date):
+
         first_period, last_period = self.generate_dates_with_stub_period(stub_period_position, starting_date, maturity_date)
         payment_dates = self.set_payment_dates(stub_period_position, starting_date, maturity_date)
         df = pd.DataFrame({"Fixing Start": first_period, "Fixing End": last_period, "Payment_dates": payment_dates["Payment Date"]})
@@ -138,6 +142,7 @@ class ScheduleGenerator:
         return df
 
     def generate_financing_schedule(self, stub_period_position, starting_date, maturity_date):
+
         first_period, last_period = self.generate_dates_with_stub_period(stub_period_position, starting_date, maturity_date)
         payment_dates = self.set_payment_dates(stub_period_position, starting_date, maturity_date)
         df = pd.DataFrame({"Calc Start": first_period, "Calc End": last_period, "Payment_dates": payment_dates["Payment Date"]})
