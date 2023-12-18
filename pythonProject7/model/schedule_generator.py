@@ -13,9 +13,11 @@ class ScheduleGenerator:
         self.frequency = fixing_frequency
 
         self.holiday_calendar = Holidays_Days_countries[holiday_calendar]
+
         self.payment_schedule = payment_schedule
         if self.payment_schedule == "Deduced from":
             self.deduction_formula = deduction_formula
+
         self.digit_part, self.time_value_part = self.decompose_frequency()
 
     def decompose_frequency(self):
@@ -34,7 +36,7 @@ class ScheduleGenerator:
 
     def generate_dates(self, starting_date, maturity_date):
         dates = []
-        current_date = pd.Timestamp(starting_date)
+        current_date = pd.Timestamp(self.adjusted_weekend_holidays(starting_date))
         time_value_part_upper = self.time_value_part.upper()
         while current_date <= maturity_date:
             adjusted_date = self.adjusted_weekend_holidays(current_date)
@@ -67,7 +69,7 @@ class ScheduleGenerator:
         last_generated_date = pd.Timestamp(last_period[-1])
         maturity_date = pd.Timestamp(maturity_date)
 
-        difference_in_days = (maturity_date - last_generated_date).days
+        difference_in_days = (maturity_date - last_generated_date).days - 3
         return difference_in_days
 
     def generate_dates_with_stub_period(self, stub_period_position, starting_date, maturity_date):
@@ -83,8 +85,8 @@ class ScheduleGenerator:
         elif stub_period_position == "upfront":
             stub_period_position_first_date = starting_date
             stub_period_last_date = stub_period_position_first_date + relativedelta(days=self.compute_stub_period(starting_date, maturity_date))
-            stub_period_last_date = self.adjusted_weekend_holidays(stub_period_last_date)
-            _, _, dates = self.generate_dates(stub_period_last_date, maturity_date + relativedelta(days=5))
+            print(stub_period_last_date)
+            _, _, dates = self.generate_dates(stub_period_last_date, maturity_date)
             dates.insert(0, starting_date)
             first_period = dates[:-1]
             last_period = dates[1:]
@@ -139,5 +141,5 @@ class ScheduleGenerator:
 
 # Example usage
 schedule = ScheduleGenerator("5M", "USA", "Deduced from", "3BD")
-#print(schedule.generate_dates_with_stub_period(starting_date=datetime.datetime(2023,2,1), maturity_date=datetime.datetime(2024,1, 1), stub_period_position="upfront"))
+print(schedule.adjusted_weekend_holidays(datetime.datetime(2023, 3,7)))
 #print(schedule.compute_stub_period(starting_date=datetime.datetime(2023,2,1), maturity_date=datetime.datetime(2024,1, 1)))
