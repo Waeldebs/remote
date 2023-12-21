@@ -10,9 +10,9 @@ from pythonProject7.model.financing_leg import FinancingLeg
 
 class Transaction:
 
-    def __init__(self, trade_date, valuation_shifter: int, maturity, fixing_frequency, holiday_calendar, perf_payment_schedule,
+    def __init__(self, trade_date, valuation_shifter: int, maturity, fixing_frequency, holiday_calendar, perf_payment_schedule,perf_payment_frequency,
 
-                 financing_frequency, financing_payment_schedule, deduction_formula_perf, deduction_formula_financing, stub_period_position):
+                 financing_frequency, financing_payment_schedule, financing_payment_frequency, deduction_formula_perf, deduction_formula_financing, stub_period_position):
 
         self.trade_date = date_to_treat(trade_date)
 
@@ -22,10 +22,10 @@ class Transaction:
 
         self.stub_period_position = stub_period_position
 
-        perf_schedule_generator = ScheduleGenerator(fixing_frequency,holiday_calendar, perf_payment_schedule, deduction_formula_perf)
+        perf_schedule_generator = ScheduleGenerator(fixing_frequency,holiday_calendar, perf_payment_schedule,perf_payment_frequency, deduction_formula_perf)
         self.perf_leg = PerfLeg(perf_schedule_generator)
 
-        financing_schedule_generator = ScheduleGenerator(financing_frequency, holiday_calendar, financing_payment_schedule, deduction_formula_financing)
+        financing_schedule_generator = ScheduleGenerator(financing_frequency, holiday_calendar, financing_payment_schedule,financing_payment_frequency,deduction_formula_financing)
         self.financing_leg = FinancingLeg(financing_schedule_generator)
 
     def decompose_string(self, s):
@@ -40,7 +40,7 @@ class Transaction:
     @property
     def effective_date(self):
         effective_date = self.trade_date + BDay(self.valuation_shifter)
-        return effective_date
+        return self.adjusted_weekend(effective_date)
 
     def adjusted_weekend(self,date):
         while date.weekday() >= 5 or date in self.financing_leg.schedule_generator.get_holiday_calendar():
