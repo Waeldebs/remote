@@ -69,10 +69,10 @@ class Transaction:
             return self.adjusted_weekend(maturity_date)
 
     def get_equity_schedule(self):
-        return self.perf_leg.schedule_generator.generate_equity_schedule(starting_date= pd.to_datetime(self.trade_date), maturity_date = self.maturity_date, stub_period_position=self.stub_period_position)
+        return self.perf_leg.schedule_generator.generate_equity_schedule(starting_date= pd.to_datetime(self.trade_date), maturity_date = self.maturity_date, stub_period_position=self.stub_period_position, valuation_shifter=self.valuation_shifter)
 
     def get_financing_schedule(self):
-        return self.financing_leg.schedule_generator.generate_financing_schedule(starting_date= pd.to_datetime(self.effective_date), maturity_date = self.maturity_date, stub_period_position=self.stub_period_position)
+        return self.financing_leg.schedule_generator.generate_financing_schedule(starting_date= pd.to_datetime(self.effective_date), maturity_date = self.maturity_date, stub_period_position=self.stub_period_position, valuation_shifter=self.valuation_shifter)
 
 
     def get_number_days(self):

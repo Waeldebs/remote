@@ -14,14 +14,14 @@ if __name__ == "__main__":
     #Performance Schedule:
     fixing_frequency = "1M"
     holiday_calendar = "USA"
-    perf_payment_schedule = "Equal to Fixing End Schedule"
-    perf_payment_frequency = None
+    perf_payment_schedule = "Driving Schedule Deduce"
+    perf_payment_frequency = "1M"
     deduction_formula_perf = None
 
     #Financing Schedule:
     financing_frequency = "5M"
-    financing_payment_schedule = "Deduced from"
-    financing_payment_frequency = None
+    financing_payment_schedule = "Driving Schedule"
+    financing_payment_frequency = "1M"
     deduction_formula_financing = "5BD"
 
 

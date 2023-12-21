@@ -11,6 +11,7 @@ import datetime
 class ScheduleGenerator:
     def __init__(self, fixing_frequency, holiday_calendar, payment_schedule, payment_frequency=None,
                  deduction_formula=None):
+
         self.fixing_frequency = fixing_frequency
         self.fixing_digit_part, self.fixing_time_value_part = self.decompose_frequency(self.fixing_frequency)
         self.holiday_calendar = Holidays_Days_countries[holiday_calendar]
@@ -22,7 +23,6 @@ class ScheduleGenerator:
 
         elif self.payment_schedule == "Driving Schedule Deduce":
             self.payment_frequency = payment_frequency
-            self.deduction_formula = deduction_formula
             self.payment_digit_part, self.payment_time_value_part = self.decompose_frequency(self.payment_frequency)
 
         elif self.payment_schedule == "Deduced from":
@@ -112,7 +112,7 @@ class ScheduleGenerator:
         elif stub_period_position == "upfront":
             stub_period_position_first_date = starting_date
             stub_period_last_date = stub_period_position_first_date + relativedelta(
-                days=self.compute_stub_period(starting_date, maturity_date))
+                  days=self.compute_stub_period(starting_date, maturity_date))
             _, _, dates = self.generate_dates(stub_period_last_date, maturity_date)
             dates.insert(0, starting_date)
             first_period = dates[:-1]
@@ -123,33 +123,64 @@ class ScheduleGenerator:
 
         # TODO: Add non existent stub_period to the model
 
-    def set_payment_dates(self, stub_period_position, starting_date, maturity_date):
+    def set_payment_dates(self, stub_period_position, starting_date, maturity_date, valuation_shifter):
 
         end_dates = self.generate_dates_with_stub_period(stub_period_position, starting_date, maturity_date)[1]
-        df = pd.DataFrame({"Payment Date": end_dates})
-
+        df = pd.DataFrame(data= None, columns=["Payment Date"])
         if self.payment_schedule == "Equal to Fixing End Schedule":
              df = pd.DataFrame({"Payment Date": end_dates})
 
         elif self.payment_schedule == "Deduced from":
-            numeric_part = int(re.search(r'\d+', self.deduction_formula).group())
-            if "BD" in self.deduction_formula:
-                df["Payment Date"] += BDay(numeric_part)
-                df["Payment Date"] = df["Payment Date"].apply(lambda x: self.adjusted_weekend_holidays(x))
-            elif "DAYS" in self.deduction_formula:
-                df["Payment Date"] += timedelta(days=numeric_part)
-                df["Payment Date"] = df["Payment Date"].apply(lambda x: self.adjusted_weekend_holidays(x))
+             df = pd.DataFrame({"Payment Date": end_dates})
+             numeric_part = int(re.search(r'\d+', self.deduction_formula).group())
+             if "BD" in self.deduction_formula:
+                 df["Payment Date"] += BDay(numeric_part)
+             elif "DAYS" in self.deduction_formula:
+                 df["Payment Date"] += timedelta(days=numeric_part)
+                 df["Payment Date"] = df["Payment Date"].apply(lambda x: self.adjusted_weekend_holidays(x))
 
         elif self.payment_schedule == "Driving Schedule":
-            df["Payment Date"] = ["Fixing_date"]
+            df = pd.DataFrame(data=end_dates, columns=["End Dates"])
+            if "MONTH" or "M" in self.payment_time_value_part:
+                df["Payment Date"] = (df["End Dates"].apply(lambda x: x + relativedelta(months=self.payment_digit_part))).apply(lambda x: self.adjusted_weekend_holidays(x))
+            elif "WEEKS" or "W" in self.payment_time_value_part:
+                df["Payment Date"] = (df["End Dates"].apply(lambda x: x + relativedelta(weeks=self.payment_digit_part))).apply(lambda x: self.adjusted_weekend_holidays(x))
+            elif "YEARS" or "Y" in self.payment_time_value_part:
+                df["Payment Date"] = (df["End Dates"].apply(lambda x: x + relativedelta(years=self.payment_digit_part))).apply(lambda x: self.adjusted_weekend_holidays(x))
+            elif "DAYS" or "D" in self.payment_time_value_part:
+                df["Payment Date"] = (df["End Dates"].apply(lambda x: x + relativedelta(days=self.payment_digit_part))).apply(lambda x: self.adjusted_weekend_holidays(x))
+            elif "BUSINESSDAYS" or "BD" in self.payment_time_value_part:
+                df["Payment Date"] = df["End Dates"].apply(lambda x: x + BDay(self.payment_digit_part))
+
+
+        elif self.payment_schedule == "Driving Schedule Deduced":
+            df = pd.DataFrame(data=end_dates, columns=["End Dates"])
+            if "MONTH" or "M" in self.payment_time_value_part:
+                df["Payment Date"] = (df["End Dates"].apply(lambda x: x + relativedelta(months=self.payment_digit_part)
+                                                                      + BDay(valuation_shifter))).apply(self.adjusted_weekend_holidays(x))
+            elif "WEEKS" or "W" in self.payment_time_value_part:
+                df["Payment Date"] = (df["End Dates"].apply(lambda x: x + relativedelta(weeks=self.payment_digit_part)
+                                                                      + BDay(valuation_shifter))).apply(self.adjusted_weekend_holidays(x))
+            elif "YEARS" or "Y" in self.payment_time_value_part:
+                df["Payment Date"] = (df["End Dates"].apply(lambda x: x + relativedelta(years=self.payment_digit_part)
+                                                                      + BDay(valuation_shifter))).apply(self.adjusted_weekend_holidays(x))
+            elif "DAYS" or "D" in self.payment_time_value_part:
+                df["Payment Date"] = (df["End Dates"].apply(lambda x: x + relativedelta(days=self.payment_digit_part)
+                                                                      + BDay(valuation_shifter))).apply(self.adjusted_weekend_holidays(x))
+            elif "BUSINESSDAYS" or "BD" in self.payment_time_value_part:
+                df["Payment Date"] = df["End Dates"].apply(lambda x: x + BDay(self.payment_digit_part)
+                                                                     + BDay(valuation_shifter)).apply(self.adjusted_weekend_holidays(x))
+            else :
+
+                ValueError(f"Payment Schedule not Valid")
 
         return df
 
-    def generate_equity_schedule(self, stub_period_position, starting_date, maturity_date):
+    def generate_equity_schedule(self, stub_period_position, starting_date, maturity_date, valuation_shifter):
 
         first_period, last_period = self.generate_dates_with_stub_period(stub_period_position, starting_date,
                                                                          maturity_date)
-        payment_dates = self.set_payment_dates(stub_period_position, starting_date, maturity_date)
+        payment_dates = self.set_payment_dates(stub_period_position, starting_date, maturity_date, valuation_shifter)
         df = pd.DataFrame(
             {"Fixing Start": first_period, "Fixing End": last_period, "Payment_dates": payment_dates["Payment Date"]})
         df["Fixing Start"] = pd.to_datetime(df["Fixing Start"])
@@ -162,18 +193,16 @@ class ScheduleGenerator:
 
         return df
 
-    def generate_financing_schedule(self, stub_period_position, starting_date, maturity_date):
+    def generate_financing_schedule(self, stub_period_position, starting_date, maturity_date, valuation_shifter):
 
         first_period, last_period = self.generate_dates_with_stub_period(stub_period_position, starting_date,
                                                                          maturity_date)
-        payment_dates = self.set_payment_dates(stub_period_position, starting_date, maturity_date)
-        df = pd.DataFrame(
-            {"Calc Start": first_period, "Calc End": last_period, "Payment_dates": payment_dates["Payment Date"]})
+        payment_dates = self.set_payment_dates(stub_period_position, starting_date, maturity_date, valuation_shifter)
+        df = pd.DataFrame({"Calc Start": first_period, "Calc End": last_period, "Payment_dates": payment_dates["Payment Date"]})
         df["Calc Start"] = pd.to_datetime(df["Calc Start"])
         df["Calc End"] = pd.to_datetime(df["Calc End"])
         df["Payment_dates"] = pd.to_datetime(df["Payment_dates"])
         df = df[df['Calc Start'] != df['Calc End']]
-
         df["Calc Start"] = df["Calc Start"].dt.date
         df["Calc End"] = df["Calc End"].dt.date
         df["Payment_dates"] = df["Payment_dates"].dt.date
