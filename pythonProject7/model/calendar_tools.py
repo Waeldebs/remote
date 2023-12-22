@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 def date_to_treat(trade_date):
     # List of expected date formats
     date_formats = ["%d-%m-%Y", "%d/%m/%Y"]
@@ -20,8 +21,6 @@ def date_to_treat(trade_date):
     else:
         # If the input is not a string, return a different error message
         return "Trade date must be a string."
-
-
 
 
 Holidays_Days_countries = {
@@ -53,5 +52,3 @@ Holidays_Days_countries = {
         # Additional years 2025, 2026, 2027...
     ]
 }
-
-
