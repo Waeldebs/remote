@@ -1,21 +1,13 @@
-    def compute_stub_period(self, starting_date, maturity_date):
+class FlowSchedule:
+    def __init__(self):
+        self.dataframe = None
 
-        last_period = self.generate_dates(starting_date, maturity_date)[-1]
-        last_generated_date = pd.Timestamp(last_period[-1])
-        maturity_date = pd.Timestamp(maturity_date)
+    def set_dataframe(self, dataframe):
+        self.dataframe = dataframe
+    # ... additional methods ...
 
-        custom_bday = CustomBusinessDay(holidays=self.holiday_calendar)
-
-        business_days = pd.bdate_range(start=last_generated_date, end=maturity_date, freq=custom_bday)
-
-        difference_in_bdays = len(business_days) - 1
-
-        return difference_in_bdays
-
-
-
-
-    first_period, last_period, _ = self.generate_dates(stub_period_last_date, maturity_date)
-            first_period.insert(0, stub_period_position_first_date)
-            last_period.insert(0, stub_period_last_date)
-            return first_period, last_period
+# Usage
+generator = ScheduleGenerator(...)
+financing_schedule_df = generator.generate_financing_schedule(...)
+flow_schedule = FlowSchedule()
+flow_schedule.set_dataframe(financing_schedule_df)

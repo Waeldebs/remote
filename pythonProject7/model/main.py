@@ -6,7 +6,7 @@ if __name__ == "__main__":
     trade_date = "02/01/2009"
     valuation_shifter = 3
     maturity = "1Y"
-    stub_period_position = "upfront"
+    stub_period_position = "inAreas"
 
     # Schedule
 
@@ -14,14 +14,16 @@ if __name__ == "__main__":
     fixing_frequency = "1M"
     holiday_calendar = "USA"
     perf_payment_schedule = "Driving Schedule Deduce"
-    perf_payment_frequency = "1M"
+    perf_payment_frequency = "1W"
     deduction_formula_perf = None
 
     # Financing Schedule:
-    financing_frequency = "5M"
+    financing_frequency = "1M"
     financing_payment_schedule = "Driving Schedule"
     financing_payment_frequency = "1M"
     deduction_formula_financing = "5BD"
+
+
 
     transaction_instance = Transaction(trade_date, valuation_shifter, maturity, fixing_frequency, holiday_calendar,
                                        perf_payment_schedule, perf_payment_frequency, financing_frequency,
