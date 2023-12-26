@@ -1,9 +1,6 @@
 import unittest
-from datetime import datetime
 import pandas as pd
 from pythonProject7.model.schedule_generator import ScheduleGenerator  # Replace 'your_module' with the name of your module
-
-
 
 class TestScheduleGenerator(unittest.TestCase):
 

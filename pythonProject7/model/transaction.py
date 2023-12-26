@@ -10,7 +10,7 @@ from pythonProject7.model.financing_leg import FinancingLeg
 
 class Transaction:
 
-    def __init__(self, trade_date, valuation_shifter: int, maturity, fixing_frequency, holiday_calendar,
+    def __init__(self, trade_date, valuation_shifter: int, maturity, basket, fixing_frequency, holiday_calendar,
                  perf_payment_schedule, perf_payment_frequency,
 
                  financing_frequency, financing_payment_schedule, financing_payment_frequency, deduction_formula_perf,
@@ -24,9 +24,11 @@ class Transaction:
 
         self.stub_period_position = stub_period_position
 
+        self.basket = basket
+
         perf_schedule_generator = ScheduleGenerator(fixing_frequency, holiday_calendar, perf_payment_schedule,
                                                     perf_payment_frequency, deduction_formula_perf)
-        self.perf_leg = PerfLeg(perf_schedule_generator)
+        self.perf_leg = PerfLeg(perf_schedule_generator, basket)
 
         financing_schedule_generator = ScheduleGenerator(financing_frequency, holiday_calendar,
                                                          financing_payment_schedule, financing_payment_frequency,

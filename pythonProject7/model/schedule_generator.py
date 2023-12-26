@@ -7,7 +7,6 @@ from datetime import timedelta
 from pythonProject7.model.calendar_tools import Holidays_Days_countries
 import datetime
 
-
 class ScheduleGenerator:
     def __init__(self, fixing_frequency, holiday_calendar, payment_schedule, payment_frequency=None,
                  deduction_formula=None):
@@ -220,8 +219,7 @@ class ScheduleGenerator:
 
         return df
 
-
 # Example usage
-#schedule = ScheduleGenerator("1M", "USA", "Driving Schedule Deduce", "1W")
-#print(schedule.set_payment_dates(stub_period_position="upfront", starting_date=datetime.datetime(2023, 2, 1),
-                                 #maturity_date=datetime.datetime(2024, 1, 1), valuation_shifter=3))
+# schedule = ScheduleGenerator("1M", "USA", "Driving Schedule Deduce", "1W")
+# print(schedule.set_payment_dates(stub_period_position="upfront", starting_date=datetime.datetime(2023, 2, 1),
+# maturity_date=datetime.datetime(2024, 1, 1), valuation_shifter=3))
