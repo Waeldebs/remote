@@ -61,7 +61,7 @@ class Transaction:
         if alphabetic_part is None:
             return "Invalid maturity format"
 
-        start_date = pd.to_datetime(self.effective_date)
+        start_date = pd.to_datetime(self.trade_date)
         numeric_part = int(numeric_part)  # Convert to integer
 
         if "YEAR" in alphabetic_part.upper() or "Y" in alphabetic_part.upper():

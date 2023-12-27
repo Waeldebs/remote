@@ -20,10 +20,10 @@ if __name__ == "__main__":
     # Schedule
 
     # Performance Schedule:
-    fixing_frequency = "1M"
+    fixing_frequency = "2M"
     holiday_calendar = "USA"
     perf_payment_schedule = "Driving Schedule Deduce"
-    perf_payment_frequency = "1W"
+    perf_payment_frequency = "1M"
     deduction_formula_perf = None
 
     # Financing Schedule:
