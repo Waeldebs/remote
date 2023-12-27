@@ -119,6 +119,7 @@ class ScheduleGenerator:
             first_period = dates[:-1]
             last_period = dates[1:]
             return first_period, last_period
+
         else:
             raise ValueError(f"Invalid stub period position: {stub_period_position}")
 
