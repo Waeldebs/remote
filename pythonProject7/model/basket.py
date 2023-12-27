@@ -7,10 +7,6 @@ class Basket:
             components = []
         self.components = components
 
-    @classmethod
-    def create(cls):
-        component = Components(30, 13)
-
     def add_component(self, component):
         self.components.append(component)
 
@@ -19,3 +15,7 @@ class Basket:
 
     def __repr__(self):
         return '\n'.join([str(component) for component in self.components])
+
+    def gg(self):
+        for elements in self.components:
+            print(elements.isin)

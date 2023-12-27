@@ -50,5 +50,4 @@ if __name__ == "__main__":
     print("Financing Schedule")
     print(transaction_instance.get_financing_schedule())
 
-    for component in transaction_instance.perf_leg.basket.components:
-        print(component.isin)
+    print(transaction_instance.perf_leg.basket.gg())

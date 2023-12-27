@@ -7,8 +7,9 @@ from datetime import timedelta
 from pythonProject7.model.calendar_tools import Holidays_Days_countries
 import datetime
 
+
 class ScheduleGenerator:
-    def __init__(self, fixing_frequency, holiday_calendar, payment_schedule, payment_frequency=None,
+    def __init__(self, fixing_frequency, holiday_calendar : str, payment_schedule, payment_frequency=None,
                  deduction_formula=None):
 
         self.fixing_frequency = fixing_frequency
